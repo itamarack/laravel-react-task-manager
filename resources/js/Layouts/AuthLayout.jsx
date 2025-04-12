@@ -1,14 +1,26 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 
 const AuthLayout = () => {
-    const { authToken, isLoading, user } = useAuth();
+    const { isAuthenticated, isLoading, user } = useAuth();
+    const navigate = useNavigate()
     console.log(user)
+
+    const onLogout = async () => {
+        axios.post('/api/logout').then((response) => {
+            setUser(() => null);
+			setIsAuthenticated(() => false);
+			setAuthToken(() => null);
+			localStorage.removeItem('authToken');
+            axios.defaults.headers.common['Authorization'] = null;
+            navigate('/login')
+        }).catch((response) => {});
+	}
     
     if (isLoading) return <div className="text-center p-4">🌀 Loading...</div>;
 
-    if (!authToken) return <Navigate to="/login" />;
+    if (!isAuthenticated) return <Navigate to="/login" />;
 
     return (
         <div className="flex flex-col h-screen w-full">
@@ -19,7 +31,7 @@ const AuthLayout = () => {
                         <p className="text-sm font-bold tracking-wide text-white">{user.name}</p>
                         <p className="text-white tracking-wide font-light text-xs">{user.email}</p>
                     </div>
-                    <button onClick={{}} className="bg-white text-black font-medium rounded-sm text-base px-6 py-1 cursor-pointer">
+                    <button onClick={onLogout} className="bg-white text-black font-medium rounded-sm text-base px-6 py-1 cursor-pointer">
                         Logout
                     </button>
                 </div>
