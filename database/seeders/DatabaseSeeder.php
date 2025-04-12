@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Task;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,5 +22,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Category::factory(10)->create(['user_id' => $user->id]);
+
+        Task::factory(50)->create(['user_id' => $user->id]);
     }
 }
