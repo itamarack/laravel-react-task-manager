@@ -7,16 +7,21 @@ export const useAppData = () => useContext(AppDataContext);
 
 export const AppDataProvider = ({ children }) => {
     const [categoryTasks, setCategoryTasks] = useState([]);
-    const [isDataLoading, setIsDataLoading] = useState(true);
+    const [isDataLoading, setIsDataLoading] = useState(false);
 
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
     useEffect(() => {
-        if (isAuthLoading || !isAuthenticated) return;
+        setIsDataLoading(true)
+
+        if (isAuthLoading || !isAuthenticated) {
+            setIsDataLoading(false)
+            return;
+        };
 
         Requests.getCategories().then((response) => {
-                setCategoryTasks(response.data)
-            })
+            setCategoryTasks(response.data)
+        })
             .catch(console.error)
             .finally(() => setIsDataLoading(false));
     }, [isAuthenticated, isAuthLoading]);
