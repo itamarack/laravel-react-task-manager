@@ -65,7 +65,7 @@ To start the React development server, run the following:
 docker-compose exec react npm start
 ```plaintext
 
-This will run the React app on port `3000`.
+This will run the React app on port `80`.
 
 ### 2. Running with Laravel Sail
 
@@ -187,7 +187,7 @@ Ensure that your React frontend is making API requests to the correct backend UR
 
 ```
 ├── app/                 # Laravel application
-├── frontend/            # React frontend application
+├── resources/js         # React frontend application
 ├── docker-compose.yml   # Docker Compose configuration
 ├── .env                 # Environment variables for Laravel
 ├── composer.json        # Laravel dependencies
