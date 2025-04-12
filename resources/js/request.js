@@ -13,6 +13,13 @@ const Requests = ({
     getCurrent: () => apiRequest('/api/user', 'get'),
 
     getCategories: () => apiRequest('/api/categories', 'get'),
+    createCategory: (payload) => apiRequest('/api/categories', 'post', payload),
+    updateCategory: (payload) => apiRequest(`/api/categories/${payload.id}`, 'put', payload),
+    deleteCategory: (payload) => apiRequest(`/api/categories/${payload.id}`, 'delete'),
+
+    createTask: (payload) => apiRequest('/api/tasks', 'post', payload),
+    updateTask: (payload) => apiRequest(`/api/tasks/${payload.id}`, 'put', payload),
+    deleteTask: (payload) => apiRequest(`/api/tasks/${payload.id}`, 'delete'),
 });
 
 export default Requests;
