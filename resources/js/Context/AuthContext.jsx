@@ -14,17 +14,20 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(() => true)
         setAuthToken(() => localStorage.getItem('authToken'));
 
+        if (!authToken) {
+            setIsLoading(() => false);
+            return;
+        }
+
         if (authToken) {
             const headers = { Authorization: `Bearer ${authToken}` };
             axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 
-            axios.get('/api/user', { headers }).then(({ data }) => {
-                setUser(() => data)
-                setIsAuthenticated(() => !!authToken);                
-            }).catch((error) => console.log(error))
-
-            axios.get('/api/categories', { headers }).then(({ data }) => {
-                setProjects(() => data.data);
+            axios.get('/api/user', { headers }).then((response) => {
+                console.log(response)
+                setUser(() => response.data)
+                setIsAuthenticated(() => !!authToken);
+                setIsLoading(() => false);         
             }).catch((error) => console.log(error))
         }
 

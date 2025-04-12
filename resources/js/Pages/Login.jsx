@@ -11,11 +11,11 @@ const Login = () => {
     const onSubmit = async (payload) => {
          try {
             const response = await axios.post('/api/login', payload);
-
+            console.log(response)
             if (response.status === 200) {
                 localStorage.setItem('authToken', response.data.access_token);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-                setUser(response.data.data);
+                setUser(response.data);
                 setAuthToken(response.data.access_token)
                 navigate('/');
 

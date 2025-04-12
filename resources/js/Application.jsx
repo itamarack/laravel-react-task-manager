@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 import GuestLayout from './Layouts/GuestLayout';
+import AuthLayout from './Layouts/AuthLayout';
 import { AuthProvider } from './Context/AuthContext';
 
 const Application = () => {
@@ -13,6 +14,10 @@ const Application = () => {
                     <Route element={<GuestLayout />}>
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                    </Route>
+
+                    <Route element={<AuthLayout />}>
+                        <Route path="/" element={<>DASHBOARD</>} />
                     </Route>
                 </Routes>
             </Router>
