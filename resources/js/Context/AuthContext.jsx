@@ -9,30 +9,37 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authToken, setAuthToken] = useState(null);
     const [user, setUser] = useState(null);
-    const [categoryTasks, setCategoryTasks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         setIsLoading(() => true)
         setAuthToken(() => localStorage.getItem('authToken'));
 
-        if (!authToken) {
-            setIsLoading(() => false);
-            return;
-        }
+        if (!authToken) return setIsLoading(() => false);
 
         axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-        const requests = [Requests.getCurrent(),Requests.getCategories()];
 
-        Promise.allSettled(requests).then(([profile, categories]) => {
-            setUser(() => profile.value);
+        Requests.getCurrent().then((response) => {
+            setUser(() => response);
             setIsAuthenticated(() => !!authToken);
-            setCategoryTasks(() => categories.value.data);
         })
         .catch((error) => console.log(error))
         .finally(() => setIsLoading(false));
 
     }, [isAuthenticated, authToken]);
+
+    const onLogout = async () => {
+        Requests.logout().then((response) => {
+            setUser(() => null);
+			setIsAuthenticated(() => false);
+			setAuthToken(() => null);
+			localStorage.removeItem('authToken');
+            axios.defaults.headers.common['Authorization'] = null;
+            toast.success(response.message);
+        }).catch((response) => {
+            toast.error(response.data.message)
+        });
+	}
 
     return (
         <AuthContext.Provider value={{
@@ -42,9 +49,9 @@ export const AuthProvider = ({ children }) => {
             setUser,
             authToken,
             setAuthToken,
-            categoryTasks,
             isLoading,
-            setIsLoading
+            setIsLoading,
+            onLogout
         }}>
             {children}
         </AuthContext.Provider>

@@ -1,24 +1,10 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { useAuth } from '../Context/AuthContext';
-import Requests from '../request';
 
 const AuthLayout = () => {
-    const { isAuthenticated, setIsAuthenticated, setAuthToken, isLoading, user, setUser } = useAuth();
-
-    const onLogout = async () => {
-        Requests.logout().then((response) => {
-            setUser(() => null);
-			setIsAuthenticated(() => false);
-			setAuthToken(() => null);
-			localStorage.removeItem('authToken');
-            axios.defaults.headers.common['Authorization'] = null;
-            toast.success(response.message);
-        }).catch((response) => {
-            toast.error(response.data.message)
-        });
-	}
+    const { isAuthenticated, isLoading, user, onLogout } = useAuth();
     
     if (isLoading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
