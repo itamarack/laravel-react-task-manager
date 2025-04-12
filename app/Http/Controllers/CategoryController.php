@@ -11,6 +11,11 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    /**
+     * Summary of index
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $categories = $request->user()->categories()->get();
@@ -22,6 +27,11 @@ class CategoryController extends Controller
         ], 200);
     }
 
+    /**
+     * Summary of show
+     * @param \App\Models\Category $category
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
     public function show(Category $category): JsonResponse
     {
         return response()->json([
@@ -31,6 +41,11 @@ class CategoryController extends Controller
         ], 200);
     }
 
+    /**
+     * Summary of store
+     * @param \App\Http\Requests\StoreCategoryRequest $request
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
     public function store(StoreCategoryRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -44,6 +59,12 @@ class CategoryController extends Controller
         ], 201);
     }
 
+    /**
+     * Summary of update
+     * @param \App\Http\Requests\UpdateCategoryRequest $request
+     * @param \App\Models\Category $category
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
     public function update(UpdateCategoryRequest $request, Category $category): JsonResponse
     {
         $validated = $request->validated();
@@ -57,6 +78,11 @@ class CategoryController extends Controller
         ], 201);
     }
 
+    /**
+     * Summary of destroy
+     * @param \App\Models\Category $category
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
     public function destroy(Category $category): JsonResponse
     {
         $category->delete();
