@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        Category::factory(10)->create(['user_id' => $user->id]);
+        Category::factory(3)->create(['user_id' => $user->id]);
 
-        Task::factory(50)->create(['user_id' => $user->id]);
+        Task::factory(15)->create(['user_id' => $user->id]);
     }
 }
