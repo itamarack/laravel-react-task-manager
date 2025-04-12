@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './Context/AuthContext';
+import AuthLayout from './Layouts/AuthLayout';
+import GuestLayout from './Layouts/GuestLayout';
+import TaskManager from './Pages/TaskManager';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
-import GuestLayout from './Layouts/GuestLayout';
-import AuthLayout from './Layouts/AuthLayout';
-import { AuthProvider } from './Context/AuthContext';
 
 const Application = () => {
     return (
@@ -17,7 +18,7 @@ const Application = () => {
                     </Route>
 
                     <Route element={<AuthLayout />}>
-                        <Route path="/" element={<>DASHBOARD</>} />
+                        <Route path="/" element={<TaskManager />} />
                     </Route>
                 </Routes>
             </Router>
