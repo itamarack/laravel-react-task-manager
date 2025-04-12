@@ -73,22 +73,27 @@ const TaskManager = () => {
 		});
 	}
 
-	const onCreateTask = async(payload) => {
-		setErrors(() => {})
-
+	const onCreateTask = async (payload) => {
+		setErrors({});
+	
 		Requests.createTask(payload).then((response) => {
-			const category = taskState.find((t) => t.id === response.data.category.id);
-			category.tasks.push(response.data);
-			const updatedTaskState = [...taskState, category];
-			setTaskState(() => updatedTaskState);
+			const newTask = response.data;
+			const updatedTaskState = taskState.map((category) => {
+				if (category.id === newTask.category.id) {
+					return { ...category, tasks: [...category.tasks, newTask] };
+				}
+				return category;
+			});
+	
+			setTaskState(updatedTaskState);
 			toast.success(response.message);
-			onOpenTask(() => false)
-			setErrors(() => {})
+			onOpenTask(false);
+			setErrors({});
 		}).catch((response) => {
-			setErrors(response.data.errors)
-			toast.error(response.data.message)
+			setErrors(response.data.errors);
+			toast.error(response.data.message);
 		});
-	}
+	};
 
 	const onUpdateTask = async (payload) => {
 		setErrors(() => {})

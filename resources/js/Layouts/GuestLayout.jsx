@@ -2,11 +2,14 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { useAuth } from '../Context/AuthContext';
+import { useAppData } from '../Context/AppDataContext';
 
 const GuestLayout = () => {
     const { isAuthenticated, isLoading } = useAuth();
+    const { isDataLoading } = useAppData();
 
-    if (isLoading) {
+
+    if (isLoading || isDataLoading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
     }
 
