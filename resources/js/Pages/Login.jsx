@@ -1,10 +1,12 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 
 const Login = () => {
     const navigate = useNavigate(); 
     const { register, handleSubmit } = useForm();
+    const { authToken, setAuthToken, setUser } = useAuth();
 
     const onSubmit = async (payload) => {
          try {
@@ -13,6 +15,8 @@ const Login = () => {
             if (response.status === 200) {
                 localStorage.setItem('authToken', response.data.access_token);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+                setUser(response.data.data);
+                setAuthToken(response.data.access_token)
                 navigate('/');
 
             } else {

@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 import GuestLayout from './Layouts/GuestLayout';
+import { AuthProvider } from './Context/AuthContext';
 
 const Application = () => {
     return (
-        <>
+        <AuthProvider>
             <Router>
                 <Routes>
                     <Route element={<GuestLayout />}>
@@ -15,7 +16,7 @@ const Application = () => {
                     </Route>
                 </Routes>
             </Router>
-        </>
+        </AuthProvider>
     );
 };
 
