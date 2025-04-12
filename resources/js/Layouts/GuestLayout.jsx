@@ -1,9 +1,17 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import { useAuth } from '../Context/AuthContext';
 
 const GuestLayout = () => {
-    
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return <div className="text-center p-4">🌀 Loading...</div>;
+    }
+
+    if (isAuthenticated) return <Navigate to="/" />;
+
     return (
         <div className="flex h-dvh flex-col justify-center items-center px-6 py-12 lg:px-8 bg-gray-100">
             <div className='w-full max-w-2xl bg-white py-12 backdrop-blur-lg border border-slate-200 rounded-md'>

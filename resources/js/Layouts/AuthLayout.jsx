@@ -1,27 +1,32 @@
 import React from 'react';
-import { Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from '../Context/AuthContext';
-import { ToastContainer } from 'react-toastify';
+import Requests from '../request';
 
 const AuthLayout = () => {
-    const { isAuthenticated, isLoading, user } = useAuth();
-    const navigate = useNavigate()
-    console.log(user)
+    const { isAuthenticated, setIsAuthenticated, setAuthToken, isLoading, user, setUser } = useAuth();
 
     const onLogout = async () => {
-        axios.post('/api/logout').then((response) => {
+        Requests.logout().then((response) => {
             setUser(() => null);
 			setIsAuthenticated(() => false);
 			setAuthToken(() => null);
 			localStorage.removeItem('authToken');
             axios.defaults.headers.common['Authorization'] = null;
-            navigate('/login')
-        }).catch((response) => {});
+            toast.success(response.message);
+        }).catch((response) => {
+            toast.error(response.data.message)
+        });
 	}
     
-    if (isLoading) return <div className="text-center p-4">🌀 Loading...</div>;
+    if (isLoading) {
+        return <div className="text-center p-4">🌀 Loading...</div>;
+    }
 
-    if (!isAuthenticated) return <Navigate to="/login" />;
+    if (!isAuthenticated) {
+        return <Navigate to="/login" />;
+    }
 
     return (
         <div className="flex flex-col h-screen w-full">
