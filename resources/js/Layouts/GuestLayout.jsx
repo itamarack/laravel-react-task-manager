@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 const GuestLayout = () => {
     
@@ -10,6 +11,7 @@ const GuestLayout = () => {
                     <Outlet />
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };

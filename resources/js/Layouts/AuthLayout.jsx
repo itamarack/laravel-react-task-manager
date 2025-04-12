@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import { ToastContainer } from 'react-toastify';
 
 const AuthLayout = () => {
     const { isAuthenticated, isLoading, user } = useAuth();
@@ -37,6 +38,7 @@ const AuthLayout = () => {
                 </div>
             </nav>
             <Outlet />
+            <ToastContainer />
         </div>
     )
 };

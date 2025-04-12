@@ -1,33 +1,27 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../Context/AuthContext';
+import Requests from '../request';
 
 const Register = () => {
     const navigate = useNavigate(); 
     const { register, handleSubmit } = useForm();
     const { authToken, setAuthToken, setUser } = useAuth();
-
-    const onSubmit = async(payload) => {
-        try {
-            const response = await axios.post('/api/register', payload);
-        
-            if (response.status === 201) {
-                localStorage.setItem('authToken', response.data.access_token);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-                setUser(response.data.data);
-                setAuthToken(response.data.access_token)
-                navigate('/');
-
-            } else {
-                console.error('Login failed: No access token received');
-                alert('Login failed. Please try again.');
-            }
-
-        } catch (error) {
-            console.error('Login error:', error.response ? error.response.data : error.message);
-            alert('An error occurred. Please check your credentials and try again.');
-        }
+    const [errors, setErrors] = useState({});
+    
+    const onSubmit = async (payload) => {
+        Requests.register(payload).then((response) => {
+            localStorage.setItem('authToken', response.access_token);
+            setAuthToken(() => response.access_token);
+            setUser(() => response.data)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+            toast.success(response.message);
+        }).catch((response) => {
+            setErrors(response.data.errors)
+            toast.error(response.data.message)
+        });  
     }
 
     return (
@@ -39,18 +33,22 @@ const Register = () => {
                         <div className="flex flex-col w-full items-start gap-2 justify-between">
                             <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">Email address</label>
                             <input {...register("email", { required: true })} type="email" name="email" id="email" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6" />
+                            {errors?.email && (<small className='text-red-500 font-medium tracking-wide'>{errors.email}</small>)}
                         </div>
                         <div className="flex flex-col w-full items-start gap-2 justify-between">
                             <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">Your name</label>
                             <input {...register("name", { required: true })} name="name" id="name" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 sm:text-sm/6" />
+                            {errors?.name && (<small className='text-red-500 font-medium tracking-wide'>{errors.name}</small>)}
                         </div>
                         <div className="flex flex-col w-full items-start gap-2 justify-between">
                             <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">Password</label>
                             <input {...register("password", { required: true })} type="password" name="password" id="password" autoComplete="current-password" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6" />
+                            {errors?.password && (<small className='text-red-500 font-medium tracking-wide'>{errors.password}</small>)}
                         </div>
                         <div className="flex flex-col w-full items-start gap-2 justify-between">
                             <label htmlFor="password_confirmation" className="block text-sm/6 font-medium text-gray-900">Confirm Password</label>
                             <input {...register("password_confirmation", { required: true })} type="password" name="password_confirmation" id="password_confirmation" autoComplete="current-password" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6" />
+                            {errors?.password && (<small className='text-red-500 font-medium tracking-wide'>{errors.password}</small>)}
                         </div>
                     </div>
 
@@ -62,7 +60,7 @@ const Register = () => {
                     </div>
                 </form>
             </div>
-    </div>
+        </div>
     );
 };
 

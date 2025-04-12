@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import Requests from '../request';
 
 const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authToken, setAuthToken] = useState(null);
     const [user, setUser] = useState(null);
+    const [categoryTasks, setCategoryTasks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -19,17 +21,16 @@ export const AuthProvider = ({ children }) => {
             return;
         }
 
-        if (authToken) {
-            const headers = { Authorization: `Bearer ${authToken}` };
-            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+        const requests = [Requests.getCurrent(),Requests.getCategories()];
 
-            axios.get('/api/user', { headers }).then((response) => {
-                console.log(response)
-                setUser(() => response.data)
-                setIsAuthenticated(() => !!authToken);
-                setIsLoading(() => false);         
-            }).catch((error) => console.log(error))
-        }
+        Promise.allSettled(requests).then(([profile, categories]) => {
+            setUser(() => profile.value);
+            setIsAuthenticated(() => !!authToken);
+            setCategoryTasks(() => categories.value.data);
+        })
+        .catch((error) => console.log(error))
+        .finally(() => setIsLoading(false));
 
     }, [isAuthenticated, authToken]);
 
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }) => {
             setUser,
             authToken,
             setAuthToken,
+            categoryTasks,
             isLoading,
             setIsLoading
         }}>

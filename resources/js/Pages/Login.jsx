@@ -1,33 +1,25 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import Requests from '../request';
 
 const Login = () => {
     const navigate = useNavigate(); 
     const { register, handleSubmit } = useForm();
     const { authToken, setAuthToken, setUser } = useAuth();
-
+    
     const onSubmit = async (payload) => {
-         try {
-            const response = await axios.post('/api/login', payload);
-            console.log(response)
-            if (response.status === 200) {
-                localStorage.setItem('authToken', response.data.access_token);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-                setUser(response.data);
-                setAuthToken(response.data.access_token)
-                navigate('/');
-
-            } else {
-                console.error('Login failed: No access token received');
-                alert('Login failed. Please try again.');
-            }
-
-        } catch (error) {
-            console.error('Login error:', error.response ? error.response.data : error.message);
-            alert('An error occurred. Please check your credentials and try again.');
-        }
+        Requests.login(payload).then((response) => {
+            localStorage.setItem('authToken', response.access_token);
+            setAuthToken(() => response.access_token);
+            setUser(() => response.data)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+            toast.success(response.message);
+        }).catch((response) => {
+            toast.error(response.data.message)
+        });
     }
 
     return (
