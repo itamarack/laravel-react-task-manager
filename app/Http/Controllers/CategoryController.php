@@ -18,7 +18,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $categories = $request->user()->categories()->get();
+        $categories = $request->user()->categories()->with('tasks')->get();
 
         return response()->json([
             'data' => CategoryResource::collection($categories),
@@ -35,7 +35,7 @@ class CategoryController extends Controller
     public function show(Category $category): JsonResponse
     {
         return response()->json([
-            'data' => new CategoryResource($category),
+            'data' => new CategoryResource($category->load('tasks')),
             'message' => 'Category fetched successfully',
             'status_code' => 200,
         ], 200);
@@ -53,7 +53,7 @@ class CategoryController extends Controller
         $category = $request->user()->categories()->create($validated);
 
         return response()->json([
-            'data' => new CategoryResource($category),
+            'data' => new CategoryResource($category->load('tasks')),
             'message' => 'Category created successfully',
             'status_code' => 201,
         ], 201);
@@ -72,7 +72,7 @@ class CategoryController extends Controller
         $category->update($validated);
 
         return response()->json([
-            'data' => new CategoryResource($category),
+            'data' => new CategoryResource($category->load('tasks')),
             'message' => 'Category updated successfully',
             'status_code' => 201,
         ], 201);
@@ -85,10 +85,11 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): JsonResponse
     {
+        $deletedCategory = $category->load('tasks');
         $category->delete();
 
         return response()->json([
-            'data' => new CategoryResource($category),
+            'data' => new CategoryResource($deletedCategory),
             'message' => 'Category deleted successfully',
             'status_code' => 200,
         ], 200);
