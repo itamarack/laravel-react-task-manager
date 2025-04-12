@@ -13,6 +13,11 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Summary of register
+     * @param \App\Http\Requests\AuthRegisterRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function register(AuthRegisterRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -28,6 +33,11 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Summary of login
+     * @param \App\Http\Requests\AuthLoginRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function login(AuthLoginRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -47,6 +57,11 @@ class AuthController extends Controller
         ], 200);
     }
 
+    /**
+     * Summary of logout
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
@@ -54,6 +69,11 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
+    /**
+     * Summary of profile
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function user(Request $request): JsonResponse
     {
         return response()->json(new UserResource($request->user()));
