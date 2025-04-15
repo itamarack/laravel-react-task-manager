@@ -7,7 +7,7 @@ import { useAppData } from '../Context/AppDataContext';
 const AuthLayout = () => {
     const { isAuthenticated, isLoading, user, onLogout } = useAuth();
     const { isDataLoading } = useAppData();
-    
+
     if (isLoading || isDataLoading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
     }
