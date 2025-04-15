@@ -18,7 +18,9 @@ class CategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $categories = $request->user()->categories()->with('tasks')->get();
+        $categories = $request->user()->categories()
+            ->with(['tasks' => fn ($query) => $query->orderBy('order')])
+            ->get();
 
         return response()->json([
             'data' => CategoryResource::collection($categories),

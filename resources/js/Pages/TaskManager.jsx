@@ -18,14 +18,14 @@ const TaskManager = () => {
 	const onDragEnd = async (payload) => {
 		if (!payload.destination) return;
 
-		console.log('PAYLOAD', payload)
-
 		const response = computeTaskStateOnDrag(payload, taskState);
-		console.log('computeTaskStateOnDrag', response)
+
 		setTaskState(() => response.newState);
 
 		const { removed, container } = response;
-		onUpdateTask({ ...removed, category_id: container.id });
+
+		await onUpdateTask({ ...removed, category_id: container.id });
+		await Requests.reorderTasks(container);
 	}
 
 	const onCreateCategory = (payload) => {
@@ -266,8 +266,13 @@ const TaskManager = () => {
 																	<p className="text-sm font-light tracking-wide font-sans">{item.description}</p>
 																</div>
 																<div className="flex justify-between items-center w-full">
-																	<div className="bg-slate-800 rounded-xl px-3 py-1">
-																		<p className="text-xs text-white font-medium font-sans capitalize tracking-wide">{item.status}</p>
+																	<div className="flex justify-center items-center gap-2">
+																		<div className="bg-slate-800 rounded-xl px-3 py-1">
+																			<p className="text-xs text-white font-medium font-sans capitalize tracking-wide">{item.status}</p>
+																		</div>
+																		<div className="bg-slate-100 rounded-xl px-3 py-1 w-fit">
+																			<p className="text-xs text-slate-800 font-medium font-sans capitalize tracking-wide">{item.priority}</p>
+																		</div>
 																	</div>
 																	<div className="flex justify-start items-center gap-0">
 																		<div onClick={() => onToggleTaskStatus(item)} className="flex justify-start items-center gap-1 cursor-pointer text-slate-900 hover:bg-slate-800 hover:text-white rounded-full p-1.5">
