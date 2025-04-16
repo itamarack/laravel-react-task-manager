@@ -24,7 +24,7 @@ const TaskManager = () => {
 
 		const { removed, container } = response;
 
-		await onUpdateTask({ ...removed, category_id: container.id });
+		await Requests.updateTask({ ...removed, category_id: container.id });
 		await Requests.reorderTasks(container);
 	}
 
@@ -50,7 +50,7 @@ const TaskManager = () => {
 			const updatedTaskState = [...taskState];
 			updatedTaskState[index] = { ...updatedTaskState[index], ...response.data };
 			setTaskState(() => updatedTaskState);
-			// toast.success(response.message);
+			toast.success(response.message);
 			onOpenCategory(() => false);
 			setErrors(() => { })
 		}).catch((response) => {
