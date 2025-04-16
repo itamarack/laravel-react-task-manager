@@ -15,7 +15,7 @@ export const AppDataProvider = ({ children }) => {
         setIsDataLoading(true)
 
         if (isAuthLoading || !isAuthenticated) {
-            setIsDataLoading(false)
+            setIsDataLoading(false);
             return;
         };
 

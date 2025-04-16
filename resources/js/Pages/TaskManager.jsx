@@ -50,7 +50,7 @@ const TaskManager = () => {
 			const updatedTaskState = [...taskState];
 			updatedTaskState[index] = { ...updatedTaskState[index], ...response.data };
 			setTaskState(() => updatedTaskState);
-			toast.success(response.message);
+			// toast.success(response.message);
 			onOpenCategory(() => false);
 			setErrors(() => { })
 		}).catch((response) => {
@@ -292,19 +292,19 @@ const TaskManager = () => {
 																		</div>
 																	</div>
 																</div>
-															</div>
-														</div>
+															</div >
+														</div >
 													)}
-												</Draggable>
+												</Draggable >
 											))}
 											{provided.placeholder}
-										</div>
+										</div >
 									)}
-								</Droppable>
+								</Droppable >
 							))}
-						</DragDropContext>
-					</div>
-				</div>
+						</DragDropContext >
+					</div >
+				</div >
 			) : (
 				<div className="flex flex-col justify-center items-center p-12 gap-8">
 					<h1 className="text-2xl text-center font-bold tracking-wide text-gray-900">You do not have any projects yet.</h1>
@@ -316,7 +316,7 @@ const TaskManager = () => {
 					</div>
 				</div>
 			)}
-		</div>
+		</div >
 	);
 };
 
