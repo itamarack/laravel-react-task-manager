@@ -46,9 +46,9 @@ const TaskManager = () => {
 		setErrors(() => { })
 
 		Requests.updateCategory({ ...selected, ...payload }).then((response) => {
-			const index = taskState.findIndex((item) => item.id === selected.id);
+			const idx = taskState.findIndex((item) => item.id === selected.id);
 			const updatedTaskState = [...taskState];
-			updatedTaskState[index] = { ...updatedTaskState[index], ...response.data };
+			updatedTaskState[idx] = { ...updatedTaskState[idx], ...response.data };
 			setTaskState(() => updatedTaskState);
 			toast.success(response.message);
 			onOpenCategory(() => false);
@@ -77,7 +77,7 @@ const TaskManager = () => {
 	}
 
 	const onCreateTask = async (payload) => {
-		setErrors({});
+		setErrors(() => { });
 
 		Requests.createTask(payload).then((response) => {
 			const newTask = response.data;
