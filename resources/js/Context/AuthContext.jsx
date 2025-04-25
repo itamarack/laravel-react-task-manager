@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import Requests from '../request';
+import {toast} from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -23,23 +24,23 @@ export const AuthProvider = ({ children }) => {
             setUser(() => response);
             setIsAuthenticated(() => !!authToken);
         })
-        .catch((error) => console.log(error))
-        .finally(() => setIsLoading(false));
+            .catch((error) => console.log(error))
+            .finally(() => setIsLoading(false));
 
     }, [isAuthenticated, authToken]);
 
     const onLogout = async () => {
         Requests.logout().then((response) => {
             setUser(() => null);
-			setIsAuthenticated(() => false);
-			setAuthToken(() => null);
-			localStorage.removeItem('authToken');
+            setIsAuthenticated(() => false);
+            setAuthToken(() => null);
+            localStorage.removeItem('authToken');
             axios.defaults.headers.common['Authorization'] = null;
             toast.success(response.message);
         }).catch((response) => {
             toast.error(response.data.message)
         });
-	}
+    }
 
     return (
         <AuthContext.Provider value={{

@@ -12,103 +12,150 @@ use App\Models\Task;
 
 class TaskController extends Controller
 {
+    use \App\Traits\HttpResponses;
+
     /**
      * Summary of index
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
-        $tasks = $request->user()->tasks()->orderBy('order', 'desc')->get();
+        try {
+            $tasks = $request->user()->tasks()->orderBy('order', 'desc')->get();
 
-        return response()->json([
-            'data' => TaskResource::collection($tasks),
-            'message' => 'Tasks fetched successfully',
-            'status_code' => 200,
-        ], 200);
+            return $this->successResponse(
+                TaskResource::collection($tasks),
+                'Tasks fetched successfully',
+                200
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Tasks fetch error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
     /**
      * Summary of show
-     * @param \App\Models\Task $task
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @param Task $task
+     * @return JsonResponse
      */
     public function show(Task $task): JsonResponse
     {
-        return response()->json([
-            'data' => new TaskResource($task->load('category')),
-            'message' => 'Task fetched successfully',
-            'status_code' => 200,
-        ], 200);
+        try {
+            return $this->successResponse(
+                new TaskResource($task->load('category')),
+                'Task fetched successfully'
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Task fetch error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
     /**
      * Summary of store
-     * @param \App\Http\Requests\StoreTaskRequest $request
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @param StoreTaskRequest $request
+     * @return JsonResponse
      */
-    public function store(StoreTaskRequest $request)
+    public function store(StoreTaskRequest $request): JsonResponse
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
+            $task = $request->user()->tasks()->create($validated);
 
-        $task = $request->user()->tasks()->create($validated);
+            return $this->successResponse(
+                new TaskResource($task->load('category')),
+                'Task created successfully',
+                201
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Tasks create error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        return response()->json([
-            'data' => new TaskResource($task->load('category')),
-            'message' => 'Task created successfully',
-            'status_code' => 201,
-        ], 201);
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
     /**
      * Summary of update
-     * @param \App\Http\Requests\UpdateCategoryRequest $request
-     * @param \App\Models\Task $task
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @param UpdateTaskRequest $request
+     * @param Task $task
+     * @return JsonResponse
      */
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
+            $task->update($validated);
 
-        $task->update($validated);
+            return $this->successResponse(
+                new TaskResource($task->load('category')),
+                'Task updated successfully',
+                201
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Tasks update error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        return response()->json([
-            'data' => new TaskResource($task->load('category')),
-            'message' => 'Task updated successfully',
-            'status_code' => 201,
-        ], 201);
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
-     * Summary of destroy
-     * @param \App\Models\Task $task
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * Summary of destruction
+     * @param Task $task
+     * @return JsonResponse
      */
     public function destroy(Task $task): JsonResponse
     {
-        $deletedTask = $task->load('category');
-        $task->delete();
+        try {
+            $deletedTask = $task->load('category');
+            $task->delete();
 
-        return response()->json([
-            'data' => new TaskResource($deletedTask),
-            'message' => 'Task deleted successfully',
-            'status_code' => 200,
-        ], 200);
+            return $this->successResponse(
+                new TaskResource($deletedTask),
+                'Task deleted successfully',
+                200
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Tasks delete error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
     /**
      * Summary of reorder
-     * @param \App\Http\Requests\ReorderTasksRequest $request
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @param ReorderTasksRequest $request
+     * @return JsonResponse
      */
-    public function reorder(ReorderTasksRequest $request)
+    public function reorder(ReorderTasksRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-    
-        foreach ($validated['tasks'] as $index => $task) {
-            Task::where('id', $task['id'])->update(['order' => $index]);
+        try {
+            $validated = $request->validated();
+
+            foreach ($validated['tasks'] as $index => $task) {
+                Task::query()->where('id', $task['id'])->update(['order' => $index]);
+            }
+
+            return $this->successResponse([], 'Task order updated successfully', 201);
+        } catch (\Throwable $e) {
+            \Log::error('Tasks reordered error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->errorResponse($e->getMessage(), 500);
         }
-    
-        return response()->json(['message' => 'Task order updated']);
     }
 }

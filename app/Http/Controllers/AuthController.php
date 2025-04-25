@@ -19,8 +19,8 @@ class AuthController extends Controller
 
     /**
      * Summary of register
-     * @param \App\Http\Requests\AuthRegisterRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @param AuthRegisterRequest $request
+     * @return JsonResponse
      */
     public function register(AuthRegisterRequest $request): JsonResponse
     {
@@ -29,7 +29,7 @@ class AuthController extends Controller
 
             $validated['password'] = Hash::make($validated['password']);
 
-            $user = User::create($validated);
+            $user = User::query()->create($validated);
 
             return $this->successResponse([
                 'user'         => new UserResource($user),
@@ -47,8 +47,8 @@ class AuthController extends Controller
 
     /**
      * Summary of login
-     * @param \App\Http\Requests\AuthLoginRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @param AuthLoginRequest $request
+     * @return JsonResponse
      */
     public function login(AuthLoginRequest $request): JsonResponse
     {
@@ -76,7 +76,7 @@ class AuthController extends Controller
                 'user'         => new UserResource($user),
                 'access_token' => $user->createToken('api_token')->plainTextToken,
                 'token_type'   => 'Bearer',
-            ], 'Login successful');
+            ], 'Login successful', 200);
         } catch (\Throwable $e) {
             \Log::error('Login error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
@@ -88,15 +88,15 @@ class AuthController extends Controller
 
     /**
      * Summary of logout
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function logout(Request $request): JsonResponse
     {
         try {
             $request->user()->currentAccessToken()->delete();
 
-            return $this->successResponse(null, 'Successfully logged out');
+            return $this->successResponse(null, 'Successfully logged out', 200);
         } catch (\Throwable $e) {
             \Log::error('Logout error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
@@ -108,15 +108,16 @@ class AuthController extends Controller
 
     /**
      * Summary of profile
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function user(Request $request): JsonResponse
     {
         try {
-            $user = new UserResource($request->user());
-
-            return $this->successResponse($user, 'User profile fetched successfully');
+            return $this->successResponse(
+                new UserResource($request->user()),
+                'User profile fetched successfully',200
+            );
         } catch (\Throwable $e) {
             \Log::error('Profile fetch error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()

@@ -6,15 +6,15 @@ import { useAuth } from '../Context/AuthContext';
 import Requests from '../request';
 
 const Login = () => {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
     const { authToken, setAuthToken, setUser } = useAuth();
-    
+
     const onSubmit = async (payload) => {
         Requests.login(payload).then((response) => {
-            localStorage.setItem('authToken', response.access_token);
-            setAuthToken(() => response.access_token);
-            setUser(() => response.data)
+            localStorage.setItem('authToken', response.data.access_token);
+            setAuthToken(() => response.data.access_token);
+            setUser(() => response.data.user)
             axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
             toast.success(response.message);
         }).catch((response) => {
