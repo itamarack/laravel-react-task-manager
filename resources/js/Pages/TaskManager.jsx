@@ -262,7 +262,7 @@ const TaskManager = () => {
 																userSelect: "none",
 																padding: 16,
 																margin: '0 0 16px 0',
-																background: snapshot.isDragging ? "lightgreen" : (item.status == 'completed' ? 'lightpink' : 'white'),
+																background: snapshot.isDragging ? "lightgreen" : (item.status === 'completed' ? 'lightpink' : 'white'),
 
 																...provided.draggableProps.style
 															}}
