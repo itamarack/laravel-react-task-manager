@@ -127,10 +127,6 @@ const TaskManager = () => {
 		});
 	}
 
-    const onReorderTask = async (task, taskBefore, taskAfter) => {
-
-    }
-
 	const onDeleteTask = async (task) => {
 		const isConfirmed = window.confirm("Are you sure you want to delete this task?");
 
