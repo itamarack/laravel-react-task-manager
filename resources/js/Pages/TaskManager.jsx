@@ -1,19 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toast } from 'react-toastify';
-import { useAppData } from '../Context/AppDataContext';
+import { useTaskContext } from '../Context/TaskContext.jsx';
 import CreateCategory from "../Components/CreateCategory";
 import CreateTasks from "../Components/CreateTasks";
 import Requests from "../request";
 import Helpers from "../helpers"
 
 const TaskManager = () => {
-	const { categoryTasks } = useAppData();
+	const { categoryTasks } = useTaskContext();
 	const [taskState, setTaskState] = useState(categoryTasks);
 	const [isOpenCategory, onOpenCategory] = useState(false);
 	const [isOpenTask, onOpenTask] = useState(false);
 	const [selected, setSelected] = useState({});
 	const [errors, setErrors] = useState({});
+
+    useEffect(() => {setTaskState(categoryTasks)}, [categoryTasks]);
 
     const onDragEnd = async (payload) => {
         if (!payload.destination) return;
@@ -101,7 +103,6 @@ const TaskManager = () => {
 	};
 
 	const onUpdateTask = async (payload) => {
-        console.log(payload);
 		setErrors(() => { })
 
 		Requests.updateTask({ ...selected, ...payload }).then((response) => {

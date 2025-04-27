@@ -2,18 +2,17 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { useAuthContext } from '../Context/AuthContext';
-import { useAppData } from '../Context/AppDataContext';
+import { useTaskContext } from '../Context/TaskContext.jsx';
 
 const GuestLayout = () => {
-    const { isAuthenticated, isLoading } = useAuthContext();
-    const { isDataLoading } = useAppData();
+    const { user, isAuthLoading } = useAuthContext();
+    const { isTaskLoading } = useTaskContext();
 
-
-    if (isLoading || isDataLoading) {
+    if (isAuthLoading || isTaskLoading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
     }
 
-    if (isAuthenticated) return <Navigate to="/" />;
+    if (user) return <Navigate to="/" />;
 
     return (
         <div className="flex h-dvh flex-col justify-center items-center px-6 py-12 lg:px-8 bg-gray-100">

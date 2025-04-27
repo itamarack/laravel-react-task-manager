@@ -1,18 +1,29 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import {toast, ToastContainer} from 'react-toastify';
 import { useAuthContext } from '../Context/AuthContext';
-import { useAppData } from '../Context/AppDataContext';
+import { useTaskContext } from '../Context/TaskContext.jsx';
+import Requests from "../request.js";
 
 const AuthLayout = () => {
-    const { isAuthenticated, isLoading, user, onLogout } = useAuthContext();
-    const { isDataLoading } = useAppData();
+    const { isAuthLoading, user, setUser } = useAuthContext();
+    const { isTaskLoading } = useTaskContext();
 
-    if (isLoading || isDataLoading) {
+    const onLogout = async () => {
+        await Requests.logout().then((response) => {
+            console.log(response);
+            setUser(() => null);
+            toast.success(response.message);
+        }).catch((response) => {
+            toast.error(response.data.message)
+        });
+    }
+
+    if (isAuthLoading || isTaskLoading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
     }
 
-    if (!isAuthenticated) {
+    if (!user) {
         return <Navigate to="/login" />;
     }
 
