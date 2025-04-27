@@ -2,15 +2,17 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Context/AuthContext';
+import {useAuthContext} from '../Context/AuthContext';
 import Requests from '../request';
 
 const Login = () => {
     const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
-    const { authToken, setAuthToken, setUser } = useAuth();
+    const { authToken, setAuthToken, setUser } = useAuthContext();
 
     const onSubmit = async (payload) => {
+        await Requests.csrfCookie();
+
         Requests.login(payload).then((response) => {
             localStorage.setItem('authToken', response.data.access_token);
             setAuthToken(() => response.data.access_token);

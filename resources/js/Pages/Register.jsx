@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAuth } from '../Context/AuthContext';
+import {useAuthContext} from '../Context/AuthContext';
 import Requests from '../request';
 
 const Register = () => {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
-    const { authToken, setAuthToken, setUser } = useAuth();
+    const { authToken, setAuthToken, setUser } = useAuthContext();
     const [errors, setErrors] = useState({});
-    
+
     const onSubmit = async (payload) => {
         Requests.register(payload).then((response) => {
             localStorage.setItem('authToken', response.access_token);
@@ -21,7 +21,7 @@ const Register = () => {
         }).catch((response) => {
             setErrors(response.data.errors)
             toast.error(response.data.message)
-        });  
+        });
     }
 
     return (

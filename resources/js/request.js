@@ -1,12 +1,14 @@
 const apiRequest = (url, method, data = null) => {
     return new Promise((resolve, reject) => {
-        axios({ url, method, data })
+        axios({ url, method, data, withCredentials: true })
             .then((response) => resolve(response.data))
             .catch((error) => reject(error.response));
     });
 };
 
 const Requests = ({
+    csrfCookie: () => apiRequest('/sanctum/csrf-cookie', 'get'),
+
     login: (payload) => apiRequest('/api/login', 'post', payload),
     register: (payload) => apiRequest('/api/register', 'post', payload),
     logout: () => apiRequest('/api/logout', 'post'),

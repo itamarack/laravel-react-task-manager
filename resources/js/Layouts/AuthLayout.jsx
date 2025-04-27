@@ -1,11 +1,11 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { useAuth } from '../Context/AuthContext';
+import { useAuthContext } from '../Context/AuthContext';
 import { useAppData } from '../Context/AppDataContext';
 
 const AuthLayout = () => {
-    const { isAuthenticated, isLoading, user, onLogout } = useAuth();
+    const { isAuthenticated, isLoading, user, onLogout } = useAuthContext();
     const { isDataLoading } = useAppData();
 
     if (isLoading || isDataLoading) {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useAuth } from './AuthContext';
+import {useAuthContext} from './AuthContext';
 import Requests from '../request';
 
 const AppDataContext = createContext();
@@ -9,7 +9,7 @@ export const AppDataProvider = ({ children }) => {
     const [categoryTasks, setCategoryTasks] = useState([]);
     const [isDataLoading, setIsDataLoading] = useState(false);
 
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
 
     useEffect(() => {
         setIsDataLoading(true);
