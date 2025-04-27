@@ -1,58 +1,31 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import Requests from '../request';
-import {toast} from "react-toastify";
 
 const AuthContext = createContext();
 
 export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [authToken, setAuthToken] = useState(null);
     const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-    useEffect(() => {
-        setIsLoading(() => true)
-        setAuthToken(() => localStorage.getItem('authToken'));
-
-        if (!authToken) return setIsLoading(() => false);
-
-        axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-
-        Requests.getCurrent().then((response) => {
-            setUser(() => response);
-            setIsAuthenticated(() => !!authToken);
+    useEffect( () => {
+        Requests.csrfCookie().then(() => {
+            Requests.getCurrent().then((response) => {
+                setUser(() => response.data);
+            }).catch((error) => console.log(error))
         })
-            .catch((error) => console.log(error))
-            .finally(() => setIsLoading(false));
+        .catch((error) => console.log(error))
+        .finally(() => setIsAuthLoading(false));
 
-    }, [isAuthenticated, authToken]);
-
-    const onLogout = async () => {
-        Requests.logout().then((response) => {
-            setUser(() => null);
-            setIsAuthenticated(() => false);
-            setAuthToken(() => null);
-            localStorage.removeItem('authToken');
-            axios.defaults.headers.common['Authorization'] = null;
-            toast.success(response.message);
-        }).catch((response) => {
-            toast.error(response.data.message)
-        });
-    }
+    }, []);
 
     return (
         <AuthContext.Provider value={{
-            isAuthenticated,
-            setIsAuthenticated,
             user,
             setUser,
-            authToken,
-            setAuthToken,
-            isLoading,
-            setIsLoading,
-            onLogout
+            isAuthLoading,
+            setIsAuthLoading,
         }}>
             {children}
         </AuthContext.Provider>

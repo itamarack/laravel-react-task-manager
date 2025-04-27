@@ -7,21 +7,20 @@ import Requests from '../request';
 
 const Register = () => {
     const navigate = useNavigate();
+    const { setUser } = useAuthContext();
     const { register, handleSubmit } = useForm();
-    const { authToken, setAuthToken, setUser } = useAuthContext();
     const [errors, setErrors] = useState({});
 
     const onSubmit = async (payload) => {
-        Requests.register(payload).then((response) => {
-            localStorage.setItem('authToken', response.access_token);
-            setAuthToken(() => response.access_token);
-            setUser(() => response.data)
-            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-            toast.success(response.message);
-        }).catch((response) => {
-            setErrors(response.data.errors)
-            toast.error(response.data.message)
-        });
+        Requests.csrfCookie().then(() => {
+            Requests.register(payload).then((response) => {
+                setUser(() => response.data.user)
+                toast.success(response.message);
+            }).catch((response) => {
+                setErrors(response.data.errors)
+                toast.error(response.data.message)
+            });
+        }).catch((error) => console.log(error));
     }
 
     return (
