@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toast } from 'react-toastify';
 import { useAppData } from '../Context/AppDataContext';
-import { computeTaskStateOnDrag } from "../helpers"
 import CreateCategory from "../Components/CreateCategory";
 import CreateTasks from "../Components/CreateTasks";
 import Requests from "../request";
+import Helpers from "../helpers"
 
 const TaskManager = () => {
 	const { categoryTasks } = useAppData();
@@ -15,18 +15,20 @@ const TaskManager = () => {
 	const [selected, setSelected] = useState({});
 	const [errors, setErrors] = useState({});
 
-	const onDragEnd = async (payload) => {
-		if (!payload.destination) return;
+    const onDragEnd = async (payload) => {
+        if (!payload.destination) return;
 
-		const response = computeTaskStateOnDrag(payload, taskState);
+        const response = Helpers.computeTaskStateOnDrag(payload, taskState);
 
-		setTaskState(() => response.newState);
+        setTaskState(response.newState);
 
-		const { removed, container } = response;
+        const { removed, container } = response;
 
-		await Requests.updateTask({ ...removed, category_id: container.id });
-		await Requests.reorderTasks(container);
-	}
+        await Requests.reorderTasks({
+            surround_tasks: Helpers.getSurroundingTasks(container.tasks, removed),
+            task: { ...removed, category_id: container.id },
+        });
+    }
 
 	const onCreateCategory = (payload) => {
 		setErrors(() => { })
@@ -99,6 +101,7 @@ const TaskManager = () => {
 	};
 
 	const onUpdateTask = async (payload) => {
+        console.log(payload);
 		setErrors(() => { })
 
 		Requests.updateTask({ ...selected, ...payload }).then((response) => {
@@ -123,6 +126,10 @@ const TaskManager = () => {
 			toast.error(response.data.message)
 		});
 	}
+
+    const onReorderTask = async (task, taskBefore, taskAfter) => {
+
+    }
 
 	const onDeleteTask = async (task) => {
 		const isConfirmed = window.confirm("Are you sure you want to delete this task?");
@@ -150,7 +157,7 @@ const TaskManager = () => {
 	}
 
 	const onToggleTaskStatus = async (payload) => {
-		payload.status = payload.status == 'pending' ? 'completed' : 'pending';
+		payload.status = payload.status === 'pending' ? 'completed' : 'pending';
 		await onUpdateTask(payload);
 	}
 

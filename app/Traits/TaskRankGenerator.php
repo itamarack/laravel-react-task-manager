@@ -3,21 +3,22 @@
 namespace App\Traits;
 
 use App\Models\Task;
+use Illuminate\Support\Str;
 
-trait LexoRanking
+trait TaskRankGenerator
 {
     /**
-     * @param Task|null $before
-     * @param Task|null $after
+     * @param array|null $before
+     * @param array|null $after
      * @return string
      */
-    public static function rankGenerate(?Task $before, ?Task $after): string
+    public static function rankGenerate(?array $before, ?array $after): string
     {
         return match (true) {
-            $before && $after => static::between($before->order, $after->order),
-            isset($before)    => static::after($before->order),
-            isset($after)     => static::before($after->order),
-            default           => 'm',
+            $before && $after => static::between($before['order'], $after['order']),
+            isset($before)    => static::after($before['order']),
+            isset($after)     => static::before($after['order']),
+            default           => Str::upper(fake()->bothify('??##')),
         };
     }
 
@@ -28,19 +29,17 @@ trait LexoRanking
      */
     public static function between(string $a, string $b): string
     {
-        $maxLen = max(strlen($a), strlen($b));
-        $a = str_pad($a, $maxLen, 'a');
-        $b = str_pad($b, $maxLen, 'z');
+        $aDecimal = base_convert($a, 36, 10);
+        $bDecimal = base_convert($b, 36, 10);
 
-        $result = '';
-        for ($i = 0; $i < $maxLen; $i++) {
-            $mid = chr((ord($a[$i]) + ord($b[$i])) >> 1);
-            $result .= $mid;
+        $midDecimal = (int) floor(((float) $aDecimal + (float) $bDecimal) / 2);
 
-            if ($a[$i] != $b[$i]) break;
-        }
-
-        return $result;
+        return str_pad(
+            base_convert(floor($midDecimal * 1000000) / 1000000, 10, 36),
+            max(strlen($a), strlen($b)),
+            '0',
+            STR_PAD_LEFT
+        );
     }
 
     /**
@@ -49,7 +48,7 @@ trait LexoRanking
      */
     public static function before(string $b): string
     {
-        return self::between('a', $b);
+        return self::between('0', $b);
     }
 
     /**
@@ -58,6 +57,17 @@ trait LexoRanking
      */
     public static function after(string $a): string
     {
-        return self::between($a, 'z');
+        return self::between($a, str_repeat('z', strlen($a)));
+    }
+
+    /**
+     * @return string
+     */
+    public static function randomBetween(): string
+    {
+        $randomOrder1 = Str::upper(fake()->bothify('??##'));
+        $randomOrder2 = Str::upper(fake()->bothify('??##'));
+
+        return static::between($randomOrder1, $randomOrder2);
     }
 }

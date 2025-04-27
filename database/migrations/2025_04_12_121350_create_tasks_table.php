@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
             $table->enum('priority', ['low', 'medium', 'high'])->default('low');
-            $table->unsignedInteger('order')->default(0);
+            $table->string('order')->default(0);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
 

@@ -6,13 +6,15 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\ReorderTasksRequest;
 use App\Http\Resources\TaskResource;
+use App\Traits\HttpResponses;
+use App\Traits\TaskRankGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Task;
 
 class TaskController extends Controller
 {
-    use \App\Traits\HttpResponses;
+    use HttpResponses, TaskRankGenerator;
 
     /**
      * Summary of index
@@ -93,8 +95,7 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
         try {
-            $validated = $request->validated();
-            $task->update($validated);
+            $task->update($request->validated());
 
             return $this->successResponse(
                 new TaskResource($task->load('category')),
@@ -106,7 +107,7 @@ class TaskController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return $this->errorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), 500);
         }
     }
 
@@ -138,20 +139,26 @@ class TaskController extends Controller
     /**
      * Summary of reorder
      * @param ReorderTasksRequest $request
+     * @param Task $task
      * @return JsonResponse
      */
-    public function reorder(ReorderTasksRequest $request): JsonResponse
+    public function reorder(ReorderTasksRequest $request, Task $task): JsonResponse
     {
         try {
             $validated = $request->validated();
 
-            foreach ($validated['tasks'] as $index => $task) {
-                Task::query()->where('id', $task['id'])->update(['order' => $index]);
-            }
+            $surroundTask = $request->collect('surround_tasks');
+            $order = $this->rankGenerate($surroundTask['before'], $surroundTask['after']);
 
-            return $this->successResponse([], 'Task order updated successfully', 201);
+            $task->update([...$validated['task'], 'order' => $order]);
+
+            return $this->successResponse(
+                new TaskResource($task->load('category')),
+                'Task updated successfully',
+                201
+            );
         } catch (\Throwable $e) {
-            \Log::error('Tasks reordered error: ' . $e->getMessage(), [
+            \Log::error('Tasks update error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
 
