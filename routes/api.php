@@ -14,4 +14,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('tasks', TaskController::class);
+    Route::patch('/category/{category}/reorder', [TaskController::class, 'reorder']);
 });

@@ -23,6 +23,7 @@ class Task extends Model
         'description',
         'status',
         'priority',
+        'order',
         'user_id',
         'category_id'
     ];

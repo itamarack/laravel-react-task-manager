@@ -12,10 +12,12 @@ export const AppDataProvider = ({ children }) => {
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
     useEffect(() => {
-        setIsDataLoading(true)
+        setIsDataLoading(true);
 
-        if (isAuthLoading || !isAuthenticated) {
-            setIsDataLoading(false)
+        if (isAuthLoading) return;
+
+        if (!isAuthenticated) {
+            setIsDataLoading(false);
             return;
         };
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\ReorderTasksRequest;
 use App\Http\Resources\TaskResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class TaskController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $tasks = $request->user()->tasks()->get();
+        $tasks = $request->user()->tasks()->orderBy('order', 'desc')->get();
 
         return response()->json([
             'data' => TaskResource::collection($tasks),
@@ -93,5 +94,21 @@ class TaskController extends Controller
             'message' => 'Task deleted successfully',
             'status_code' => 200,
         ], 200);
+    }
+
+    /**
+     * Summary of reorder
+     * @param \App\Http\Requests\ReorderTasksRequest $request
+     * @return \Illuminate\Http\JsonResponse|mixed
+     */
+    public function reorder(ReorderTasksRequest $request)
+    {
+        $validated = $request->validated();
+    
+        foreach ($validated['tasks'] as $index => $task) {
+            Task::where('id', $task['id'])->update(['order' => $index]);
+        }
+    
+        return response()->json(['message' => 'Task order updated']);
     }
 }

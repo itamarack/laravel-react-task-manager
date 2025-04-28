@@ -16,6 +16,7 @@ const Requests = ({
     createCategory: (payload) => apiRequest('/api/categories', 'post', payload),
     updateCategory: (payload) => apiRequest(`/api/categories/${payload.id}`, 'put', payload),
     deleteCategory: (payload) => apiRequest(`/api/categories/${payload.id}`, 'delete'),
+    reorderTasks: (payload) => apiRequest(`/api/category/${payload.id}/reorder`, 'patch', payload),
 
     createTask: (payload) => apiRequest('/api/tasks', 'post', payload),
     updateTask: (payload) => apiRequest(`/api/tasks/${payload.id}`, 'put', payload),
