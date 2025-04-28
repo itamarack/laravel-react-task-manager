@@ -6,24 +6,23 @@ import { useTaskContext } from '../Context/TaskContext.jsx';
 import Requests from "../request.js";
 
 const AuthLayout = () => {
-    const { isAuthLoading, user, setUser } = useAuthContext();
-    const { isTaskLoading } = useTaskContext();
+    const { state: authState, actions: authActions } = useAuthContext();
+    const { isTaskLoading, state: taskState } = useTaskContext();
 
     const onLogout = async () => {
         await Requests.logout().then((response) => {
-            console.log(response);
-            setUser(() => null);
+            authActions.setCurrentUser(null);
             toast.success(response.message);
         }).catch((response) => {
             toast.error(response.data.message)
         });
     }
 
-    if (isAuthLoading || isTaskLoading) {
+    if (authState.loading || taskState.loading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
     }
 
-    if (!user) {
+    if (!authState.user) {
         return <Navigate to="/login" />;
     }
 
@@ -33,8 +32,8 @@ const AuthLayout = () => {
                 <h1 className="shrink-0 text-white font-bold text-2xl">Task Manager</h1>
                 <div className="flex justify-start items-center gap-8">
                     <div className="flex flex-col justify-center items-start gap-0">
-                        <p className="text-sm font-bold tracking-wide text-white">{user.name}</p>
-                        <p className="text-white tracking-wide font-light text-xs">{user.email}</p>
+                        <p className="text-sm font-bold tracking-wide text-white">{authState.user.name}</p>
+                        <p className="text-white tracking-wide font-light text-xs">{authState.user.email}</p>
                     </div>
                     <button onClick={onLogout} className="bg-white text-black font-medium rounded-sm text-base px-6 py-1 cursor-pointer">
                         Logout

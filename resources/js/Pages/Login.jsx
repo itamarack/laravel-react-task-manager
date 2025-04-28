@@ -6,14 +6,14 @@ import {useAuthContext} from '../Context/AuthContext';
 import Requests from '../request';
 
 const Login = () => {
+    const { actions: authActions } = useAuthContext();
     const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
-    const { setUser } = useAuthContext();
 
     const onSubmit = async (payload) => {
          Requests.csrfCookie().then(() => {
              Requests.login(payload).then((response) => {
-                setUser(() => response.data.user)
+                 authActions.setCurrentUser(response.data.user);
                 toast.success(response.message);
             }).catch((response) => {
                 toast.error(response.data.message)

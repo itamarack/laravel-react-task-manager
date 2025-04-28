@@ -5,14 +5,14 @@ import { useAuthContext } from '../Context/AuthContext';
 import { useTaskContext } from '../Context/TaskContext.jsx';
 
 const GuestLayout = () => {
-    const { user, isAuthLoading } = useAuthContext();
-    const { isTaskLoading } = useTaskContext();
+    const { state: authState } = useAuthContext();
+    const { state: taskState } = useTaskContext();
 
-    if (isAuthLoading || isTaskLoading) {
+    if (authState.loading || taskState.loading) {
         return <div className="text-center p-4">🌀 Loading...</div>;
     }
 
-    if (user) return <Navigate to="/" />;
+    if (authState.user) return <Navigate to="/" />;
 
     return (
         <div className="flex h-dvh flex-col justify-center items-center px-6 py-12 lg:px-8 bg-gray-100">

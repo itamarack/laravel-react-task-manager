@@ -1,31 +1,51 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import {useAuthContext} from './AuthContext';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useAuthContext } from './AuthContext';
 import Requests from '../request';
 
-const TaskContext = createContext();
+const TaskContext = createContext({});
 export const useTaskContext = () => useContext(TaskContext);
 
-export const AppDataProvider = ({ children }) => {
-    const [categoryTasks, setCategoryTasks] = useState([]);
-    const [isTaskLoading, setIsTaskLoading] = useState(true);
+const initialState = {
+    tasks: null,
+    loading: true,
+    errors: {}
+};
 
-    const { isAuthLoading, user } = useAuthContext();
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'SET_TASKS':
+            return { ...state, tasks: action.payload };
+        case 'SET_LOADING':
+            return { ...state, loading: action.payload };
+        default:
+            return state;
+    }
+};
+
+export const TaskProvider = ({ children }) => {
+    const [state, dispatch] = useReducer(reducer, initialState);
+    const { state: authState } = useAuthContext();
+
+    const actions = ({
+        setTasks: (payload) => dispatch({ type: 'SET_TASKS', payload }),
+        setLoading: (payload) => dispatch({ type: 'SET_LOADING', payload })
+    });
 
     useEffect(() => {
-        if (isAuthLoading) return;
+        if (authState.loading) return;
 
         Requests.csrfCookie().then(() => {
             Requests.getCategories().then((response) => {
-                setCategoryTasks(response.data)
+                actions.setTasks(response.data);
             })
             .catch(console.error)
-            .finally(() => setIsTaskLoading(false));
+            .finally(() => actions.setLoading(false));
         }).catch(console.error);
 
-    }, [isAuthLoading, user]);
+    }, [authState]);
 
     return (
-        <TaskContext.Provider value={{ categoryTasks, setCategoryTasks, isTaskLoading }}>
+        <TaskContext.Provider value={{ state, dispatch, actions }}>
             {children}
         </TaskContext.Provider>
     );
