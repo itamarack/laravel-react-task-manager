@@ -7,7 +7,7 @@ import Requests from "../request.js";
 
 const AuthLayout = () => {
     const { state: authState, actions: authActions } = useAuthContext();
-    const { isTaskLoading, state: taskState } = useTaskContext();
+    const { state: taskState } = useTaskContext();
 
     const onLogout = async () => {
         await Requests.logout().then((response) => {
