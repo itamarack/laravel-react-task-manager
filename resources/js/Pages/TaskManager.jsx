@@ -1,32 +1,36 @@
-import React, { useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import React, { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { toast } from 'react-toastify';
-import { useAppData } from '../Context/AppDataContext';
-import { computeTaskStateOnDrag } from "../helpers"
+import { useTaskContext } from '../Context/TaskContext.jsx';
 import CreateCategory from "../Components/CreateCategory";
 import CreateTasks from "../Components/CreateTasks";
 import Requests from "../request";
+import Helpers from "../helpers"
 
 const TaskManager = () => {
-	const { categoryTasks } = useAppData();
-	const [taskState, setTaskState] = useState(categoryTasks);
+	const { state } = useTaskContext();
+	const [taskState, setTaskState] = useState(state.tasks);
 	const [isOpenCategory, onOpenCategory] = useState(false);
 	const [isOpenTask, onOpenTask] = useState(false);
 	const [selected, setSelected] = useState({});
 	const [errors, setErrors] = useState({});
 
-	const onDragEnd = async (payload) => {
-		if (!payload.destination) return;
+    useEffect(() => {setTaskState(state.tasks)}, [state]);
 
-		const response = computeTaskStateOnDrag(payload, taskState);
+    const onDragEnd = async (payload) => {
+        if (!payload.destination) return;
 
-		setTaskState(() => response.newState);
+        const response = Helpers.computeTaskStateOnDrag(payload, taskState);
 
-		const { removed, container } = response;
+        setTaskState(response.newState);
 
-		await Requests.updateTask({ ...removed, category_id: container.id });
-		await Requests.reorderTasks(container);
-	}
+        const { removed, container } = response;
+
+        await Requests.reorderTasks({
+            surround_tasks: Helpers.getSurroundingTasks(container.tasks, removed),
+            task: { ...removed, category_id: container.id },
+        });
+    }
 
 	const onCreateCategory = (payload) => {
 		setErrors(() => { })
@@ -150,7 +154,7 @@ const TaskManager = () => {
 	}
 
 	const onToggleTaskStatus = async (payload) => {
-		payload.status = payload.status == 'pending' ? 'completed' : 'pending';
+		payload.status = payload.status === 'pending' ? 'completed' : 'pending';
 		await onUpdateTask(payload);
 	}
 
@@ -255,7 +259,7 @@ const TaskManager = () => {
 																userSelect: "none",
 																padding: 16,
 																margin: '0 0 16px 0',
-																background: snapshot.isDragging ? "lightgreen" : (item.status == 'completed' ? 'lightpink' : 'white'),
+																background: snapshot.isDragging ? "lightgreen" : (item.status === 'completed' ? 'lightpink' : 'white'),
 
 																...provided.draggableProps.style
 															}}

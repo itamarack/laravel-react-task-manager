@@ -2,26 +2,25 @@ import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAuth } from '../Context/AuthContext';
+import {useAuthContext} from '../Context/AuthContext';
 import Requests from '../request';
 
 const Register = () => {
-    const navigate = useNavigate(); 
+    const { actions: authActions } = useAuthContext();
+    const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
-    const { authToken, setAuthToken, setUser } = useAuth();
     const [errors, setErrors] = useState({});
-    
+
     const onSubmit = async (payload) => {
-        Requests.register(payload).then((response) => {
-            localStorage.setItem('authToken', response.access_token);
-            setAuthToken(() => response.access_token);
-            setUser(() => response.data)
-            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-            toast.success(response.message);
-        }).catch((response) => {
-            setErrors(response.data.errors)
-            toast.error(response.data.message)
-        });  
+        Requests.csrfCookie().then(() => {
+            Requests.register(payload).then((response) => {
+                authActions.setCurrentUser(response.data.user);
+                toast.success(response.message);
+            }).catch((response) => {
+                setErrors(response.data.errors)
+                toast.error(response.data.message)
+            });
+        }).catch((error) => console.log(error));
     }
 
     return (

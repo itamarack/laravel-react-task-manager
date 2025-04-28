@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './Context/AuthContext';
-import { AppDataProvider } from './Context/AppDataContext';
+import { TaskProvider } from './Context/TaskContext.jsx';
 import AuthLayout from './Layouts/AuthLayout';
 import GuestLayout from './Layouts/GuestLayout';
 import TaskManager from './Pages/TaskManager';
@@ -11,7 +11,7 @@ import Register from './Pages/Register';
 const Application = () => {
     return (
         <AuthProvider>
-            <AppDataProvider>
+            <TaskProvider>
                 <Router>
                     <Routes>
                         <Route element={<GuestLayout />}>
@@ -24,7 +24,7 @@ const Application = () => {
                         </Route>
                     </Routes>
                 </Router>
-            </AppDataProvider>
+            </TaskProvider>
         </AuthProvider>
     );
 };

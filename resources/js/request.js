@@ -1,26 +1,28 @@
-const apiRequest = (url, method, data = null) => {
+const apiClient = (url, method, data = null) => {
     return new Promise((resolve, reject) => {
-        axios({ url, method, data })
+        axios({ url, method, data, withCredentials: true, withXSRFToken: true })
             .then((response) => resolve(response.data))
             .catch((error) => reject(error.response));
     });
 };
 
 const Requests = ({
-    login: (payload) => apiRequest('/api/login', 'post', payload),
-    register: (payload) => apiRequest('/api/register', 'post', payload),
-    logout: () => apiRequest('/api/logout', 'post'),
-    getCurrent: () => apiRequest('/api/user', 'get'),
+    csrfCookie: () => apiClient('/sanctum/csrf-cookie', 'get'),
 
-    getCategories: () => apiRequest('/api/categories', 'get'),
-    createCategory: (payload) => apiRequest('/api/categories', 'post', payload),
-    updateCategory: (payload) => apiRequest(`/api/categories/${payload.id}`, 'put', payload),
-    deleteCategory: (payload) => apiRequest(`/api/categories/${payload.id}`, 'delete'),
-    reorderTasks: (payload) => apiRequest(`/api/category/${payload.id}/reorder`, 'patch', payload),
+    login: (payload) => apiClient('/api/login', 'post', payload),
+    register: (payload) => apiClient('/api/register', 'post', payload),
+    logout: () => apiClient('/api/logout', 'post'),
+    getCurrent: () => apiClient('/api/user', 'get'),
 
-    createTask: (payload) => apiRequest('/api/tasks', 'post', payload),
-    updateTask: (payload) => apiRequest(`/api/tasks/${payload.id}`, 'put', payload),
-    deleteTask: (payload) => apiRequest(`/api/tasks/${payload.id}`, 'delete'),
+    getCategories: () => apiClient('/api/categories', 'get'),
+    createCategory: (payload) => apiClient('/api/categories', 'post', payload),
+    updateCategory: (payload) => apiClient(`/api/categories/${payload.id}`, 'put', payload),
+    deleteCategory: (payload) => apiClient(`/api/categories/${payload.id}`, 'delete'),
+
+    createTask: (payload) => apiClient('/api/tasks', 'post', payload),
+    updateTask: (payload) => apiClient(`/api/tasks/${payload.id}`, 'put', payload),
+    deleteTask: (payload) => apiClient(`/api/tasks/${payload.id}`, 'delete'),
+    reorderTasks: (payload) => apiClient(`/api/tasks/${payload.task.id}/reorder`, 'patch', payload),
 });
 
 export default Requests;

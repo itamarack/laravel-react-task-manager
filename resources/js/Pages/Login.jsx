@@ -2,24 +2,23 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Context/AuthContext';
+import {useAuthContext} from '../Context/AuthContext';
 import Requests from '../request';
 
 const Login = () => {
-    const navigate = useNavigate(); 
+    const { actions: authActions } = useAuthContext();
+    const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
-    const { authToken, setAuthToken, setUser } = useAuth();
-    
+
     const onSubmit = async (payload) => {
-        Requests.login(payload).then((response) => {
-            localStorage.setItem('authToken', response.access_token);
-            setAuthToken(() => response.access_token);
-            setUser(() => response.data)
-            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-            toast.success(response.message);
-        }).catch((response) => {
-            toast.error(response.data.message)
-        });
+         Requests.csrfCookie().then(() => {
+             Requests.login(payload).then((response) => {
+                 authActions.setCurrentUser(response.data.user);
+                toast.success(response.message);
+            }).catch((response) => {
+                toast.error(response.data.message)
+            });
+        }).catch((error) => console.log(error));
     }
 
     return (

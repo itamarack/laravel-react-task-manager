@@ -1,58 +1,47 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import Requests from '../request';
 
-const AuthContext = createContext();
+const AuthContext = createContext({});
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuthContext = () => useContext(AuthContext);
+
+const initialState = {
+    user: null,
+    loading: true,
+    errors: {}
+};
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'SET_USER':
+            return { ...state, user: action.payload };
+        case 'SET_LOADING':
+            return { ...state, loading: action.payload };
+        default:
+            return state;
+    }
+};
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [authToken, setAuthToken] = useState(null);
-    const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [state, dispatch] = useReducer(reducer, initialState);
 
-    useEffect(() => {
-        setIsLoading(() => true)
-        setAuthToken(() => localStorage.getItem('authToken'));
+    const actions = ({
+        setCurrentUser: (payload) => dispatch({ type: 'SET_USER', payload }),
+        setLoading: (payload) => dispatch({ type: 'SET_LOADING', payload })
+    });
 
-        if (!authToken) return setIsLoading(() => false);
-
-        axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-
-        Requests.getCurrent().then((response) => {
-            setUser(() => response);
-            setIsAuthenticated(() => !!authToken);
+    useEffect( () => {
+        Requests.csrfCookie().then(() => {
+            Requests.getCurrent().then((response) => {
+                actions.setCurrentUser(response.data);
+            }).catch((error) => console.log(error))
         })
         .catch((error) => console.log(error))
-        .finally(() => setIsLoading(false));
-
-    }, [isAuthenticated, authToken]);
-
-    const onLogout = async () => {
-        Requests.logout().then((response) => {
-            setUser(() => null);
-			setIsAuthenticated(() => false);
-			setAuthToken(() => null);
-			localStorage.removeItem('authToken');
-            axios.defaults.headers.common['Authorization'] = null;
-            toast.success(response.message);
-        }).catch((response) => {
-            toast.error(response.data.message)
-        });
-	}
+        .finally(() => actions.setLoading(false));
+    }, []);
 
     return (
-        <AuthContext.Provider value={{
-            isAuthenticated,
-            setIsAuthenticated,
-            user,
-            setUser,
-            authToken,
-            setAuthToken,
-            isLoading,
-            setIsLoading,
-            onLogout
-        }}>
+        <AuthContext.Provider value={{ state, dispatch, actions }}>
             {children}
         </AuthContext.Provider>
     );

@@ -5,13 +5,16 @@ namespace Database\Factories;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\Task;
+use App\Traits\TaskRankGenerator;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Task>
+ * @extends Factory<Task>
  */
 class TaskFactory extends Factory
 {
+    use TaskRankGenerator;
+
     protected $model = Task::class;
 
     /**
@@ -26,9 +29,9 @@ class TaskFactory extends Factory
             'description' => $this->faker->paragraph,
             'status' => $this->faker->randomElement(['pending', 'completed']),
             'priority' => $this->faker->randomElement(['low', 'medium', 'high']),
-            'category_id' => Category::inRandomOrder()->first()->id,
-            'order' => $this->faker->randomElement([0, 4]),
-            'user_id' => User::first()->id,
+            'category_id' => Category::query()->inRandomOrder()->first()->id,
+            'order' => $this->randomBetween(),
+            'user_id' => User::query()->first()?->id,
         ];
     }
 }

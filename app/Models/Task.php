@@ -2,15 +2,31 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property int $id
+ * @property string name
+ * @property string $order
+ * @property string description
+ * @property string category_id
+ * @property string priority
+ * @property string user_id
+ * @property string status
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property mixed $category
+ */
+
 class Task extends Model
 {
-    /** @use HasFactory<\Database\Factories\TaskFactory> */
+    /** @use HasFactory<TaskFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
@@ -30,7 +46,7 @@ class Task extends Model
 
     /**
      * Summary of tasks
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo;<Category, Task>
+     * @return BelongsTo;<Category, Task>
      */
     public function category(): BelongsTo
     {
@@ -39,7 +55,7 @@ class Task extends Model
 
     /**
      * Summary of tasks
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo;<User, Task>
+     * @return BelongsTo;<User, Task>
      */
     public function user(): BelongsTo
     {
